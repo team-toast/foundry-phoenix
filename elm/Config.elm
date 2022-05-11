@@ -108,7 +108,7 @@ bucketSaleAddress testMode =
             Eth.Utils.unsafeToAddress "0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec"
 
         TestArbitrum ->
-            Eth.Utils.unsafeToAddress "0x12c4e51ccc353D754337dd5117D134954024Ca62"
+            Eth.Utils.unsafeToAddress "0xA8f59986533cC92762244190C43eAC0c0E0ffe10"
 
 bucketSaleScriptsAddress : TestMode -> Address
 bucketSaleScriptsAddress testMode =
@@ -142,12 +142,12 @@ bucketSaleBucketInterval testMode =
 
 bucketSaleTokensPerBucket : TestMode -> TokenValue
 bucketSaleTokensPerBucket testMode =
-    TokenValue.fromIntTokenValue 30000
+    TokenValue.fromIntTokenValue 2000000
 
 
 bucketSaleNumBuckets : Int
 bucketSaleNumBuckets =
-    2000
+    50
 
 
 feedbackEndpointUrl : String
