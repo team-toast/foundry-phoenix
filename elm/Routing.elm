@@ -27,6 +27,7 @@ fullRouteParser =
         [ Url.Parser.s "testmain" </> Url.Parser.map (FullRoute TestMainnet) (pageRouteParser <?> refQueryParser)
         , Url.Parser.s "testkovan" </> Url.Parser.map (FullRoute TestKovan) (pageRouteParser <?> refQueryParser)
         , Url.Parser.s "testlocal" </> Url.Parser.map (FullRoute TestGanache) (pageRouteParser <?> refQueryParser)
+        , Url.Parser.s "testArbi" </> Url.Parser.map (FullRoute TestArbitrum) (pageRouteParser <?> refQueryParser)
         , Url.Parser.map (FullRoute None) (pageRouteParser <?> refQueryParser)
         ]
 
@@ -50,6 +51,9 @@ routeToString fullRoute =
 
             TestGanache ->
                 [ "#", "testlocal" ]
+
+            TestArbitrum ->
+                [ "#", "testarbi" ]
 
             _ ->
                 [ "#" ]

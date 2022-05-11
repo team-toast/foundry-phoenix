@@ -87,6 +87,9 @@ pageElementAndModal model =
 
                     TestGanache ->
                         Element.text "In Test (Local) mode"
+
+                    TestArbitrum ->
+                        Element.text "In Test (ArbitrumTestNet) mode"
     in
     ( Element.column
         [ Element.width Element.fill

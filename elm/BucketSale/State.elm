@@ -133,6 +133,9 @@ verifyWalletCorrectNetwork wallet testMode =
         ( TestGanache, Just (Eth.Net.Private 123456) ) ->
             wallet
 
+        ( TestArbitrum, Just (Eth.Net.Private 421611) ) ->
+            wallet
+
         ( None, Just Eth.Net.Kovan ) ->
             Wallet.WrongNetwork
 
@@ -574,7 +577,7 @@ update msg prevModel =
             case fetchResult of
                 Err httpErr ->
                     justModelUpdate prevModel
-                        (log "http error when fetching stateUpdateInfo")
+                        (log ("http error when fetching stateUpdateInfo " ++ (Debug.toString httpErr)))
 
                 Ok Nothing ->
                     justModelUpdate prevModel

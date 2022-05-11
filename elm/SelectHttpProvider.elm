@@ -21,6 +21,9 @@ appHttpProvider testMode =
         TestGanache ->
             Config.ganacheProviderUrl
 
+        TestArbitrum ->
+            Config.arbitrumTestProviderUrl
+
 
 networkToHttpProvider : Eth.Net.NetworkId -> Maybe HttpProvider
 networkToHttpProvider networkId =
@@ -33,6 +36,9 @@ networkToHttpProvider networkId =
 
         Eth.Net.Private 123456 ->
             Just Config.ganacheProviderUrl
+
+        Eth.Net.Private 421611 ->
+            Just Config.arbitrumTestProviderUrl
 
         _ ->
             Nothing

@@ -12,6 +12,7 @@ type TestMode
     | TestMainnet
     | TestKovan
     | TestGanache
+    | TestArbitrum
 
 
 type alias GTagData =
