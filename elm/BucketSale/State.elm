@@ -577,7 +577,7 @@ update msg prevModel =
             case fetchResult of
                 Err httpErr ->
                     justModelUpdate prevModel
-                        (log ("http error when fetching stateUpdateInfo " ++ (Debug.toString httpErr)))
+                        (log ("http error when fetching stateUpdateInfo "))
 
                 Ok Nothing ->
                     justModelUpdate prevModel
