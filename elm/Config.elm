@@ -136,7 +136,7 @@ gasstationApiEndpoint =
 
 bucketSaleBucketInterval : TestMode -> Time.Posix
 bucketSaleBucketInterval testMode =
-    Time.millisToPosix <| 1000 * 60 * 60 * 7
+    Time.millisToPosix <| 1000 * 604800
     -- Time.millisToPosix <| 1000 * 7200
 
 
