@@ -26,13 +26,15 @@ contract Deployer
     {
         // Create the treasury contract, giving initial ownership to the Team Toast multisig
         Forwarder governanceTreasury = new Forwarder(_teamToastMultisig);
+        
+        DaiSplitter splitter = new DaiSplitter();
 
         // Create the FRY token
         FRY fryToken = new FRY();
 
         // Create the bucket sale
         BucketSale bucketSale = new BucketSale (
-            address(governanceTreasury),
+            splitter,
             _startOfSale,
             _bucketPeriod,
             _bucketSupply,

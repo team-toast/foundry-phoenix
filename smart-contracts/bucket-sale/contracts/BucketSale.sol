@@ -3,6 +3,7 @@ pragma solidity ^0.5.17;
 import "../../common.5/openzeppelin/math/Math.sol";
 import "../../common.5/openzeppelin/math/SafeMath.sol";
 import "../../common.5/openzeppelin/token/ERC20/ERC20Mintable.sol";
+import "./DummyDaiSplitter.sol";
 
 contract IDecimals
 {
@@ -52,7 +53,7 @@ contract BucketSale
     // For each address, this tallies how much tokenSoldFor the address is responsible for referring.
     mapping (address => uint) public referredTotal;
 
-    address public treasury;
+    DaiSplitter public splitter;
     uint public startOfSale;
     uint public bucketPeriod;
     uint public bucketSupply;
@@ -62,23 +63,23 @@ contract BucketSale
     IERC20 public tokenSoldFor;
 
     constructor (
-            address _treasury,
+            DaiSplitter _splitter,
             uint _startOfSale,
             uint _bucketPeriod,
             uint _bucketSupply,
             uint _bucketCount,
             ERC20Mintable _tokenOnSale,    // FRY in our case
-            IERC20 _tokenSoldFor)    // typically DAI
+            IERC20 _tokenSoldFor)     // typically DAI
         public
     {
-        require(_treasury != address(0), "treasury cannot be 0x0");
+        require(address(_splitter) != address(0), "splitter cannot be 0x0");
         require(_bucketPeriod > 0, "bucket period cannot be 0");
         require(_bucketSupply > 0, "bucket supply cannot be 0");
         require(_bucketCount > 0, "bucket count cannot be 0");
         require(address(_tokenOnSale) != address(0), "token on sale cannot be 0x0");
         require(address(_tokenSoldFor) != address(0), "token sold for cannot be 0x0");
 
-        treasury = _treasury;
+        splitter = _splitter;
         startOfSale = _startOfSale;
         bucketPeriod = _bucketPeriod;
         bucketSupply = _bucketSupply;
@@ -112,8 +113,10 @@ contract BucketSale
     {
         require(_amount > 0, "no funds provided");
 
-        bool transferSuccess = tokenSoldFor.transferFrom(msg.sender, treasury, _amount);
+        bool transferSuccess = tokenSoldFor.transferFrom(msg.sender, address(splitter), _amount);
         require(transferSuccess, "enter transfer failed");
+
+        splitter.Split();
 
         registerEnter(_bucketId, _buyer, _amount);
         referredTotal[_referrer] = referredTotal[_referrer].add(_amount); // referredTotal[0x0] will track buys with no referral
@@ -187,8 +190,6 @@ contract BucketSale
 
         buyToWithdraw.buyerTokensExited = calculateExitableTokens(_bucketId, _buyer);
         totalExitedTokens = totalExitedTokens.add(buyToWithdraw.buyerTokensExited);
-
-        // TODO Poke Splitter (splitter.Split())
     
         bool transferSuccess = tokenOnSale.transfer(_buyer, buyToWithdraw.buyerTokensExited);
         require(transferSuccess, "exit mint/transfer failed");

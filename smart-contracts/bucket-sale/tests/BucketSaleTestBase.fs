@@ -156,7 +156,7 @@ let enterBucketAndValidateState sender buyer bucketToEnter valueToEnter referrer
         enteredEvent.ValueEntered |> should equal valueToEnter
 
     // state validation
-    bucketSale.Query "treasury" [||] |> shouldEqualIgnoringCase treasury.Address
+    bucketSale.Query "splitter" [||] |> shouldEqualIgnoringCase treasury.Address
     bucketSale.Query "startOfSale" [||] |> should equal startOfSale
     bucketSale.Query "bucketPeriod" [||] |> should equal bucketPeriod
     bucketSale.Query "bucketSupply" [||] |> should equal bucketSupply

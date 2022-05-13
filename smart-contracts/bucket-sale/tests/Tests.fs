@@ -106,7 +106,7 @@ let ``B_C008 - Can construct the contract``() =
 
     let contract = ContractPlug(ethConn, abi, deployTxReceipt.ContractAddress)
 
-    contract.Query "treasury" [||] |> shouldEqualIgnoringCase treasury.Address
+    contract.Query "splitter" [||] |> shouldEqualIgnoringCase treasury.Address
     contract.Query "startOfSale" [||] |> should equal startOfSale
     contract.Query "startOfSale" [||] |> should greaterThan debug.BlockTimestamp 
     contract.Query "bucketPeriod" [||] |> should equal bucketPeriod
