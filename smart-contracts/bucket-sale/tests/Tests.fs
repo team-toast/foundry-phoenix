@@ -130,17 +130,18 @@ let ``B_EN001 - Cannot enter without providing funds``() =
     forwardEvent |> shouldRevertWithMessage "no funds provided"
 
 
-// [<Specification("BucketSale", "enter", 2)>]
-// [<Fact>]
-// let ``B_EN002 - Cannot enter a bucket if payment reverts``() =
-//     mintFry bucketSale.Address 20000000UL
-//     seedWithDAI debug.ContractPlug.Address (BigInteger(10UL))
-//     let currentBucket = bucketSale.Query "currentBucket" [||]
-
-//     // Since we never approve the DAI to be used in the enter by the bucketSale contract, this will fail
-//     let receipt = bucketSale.ExecuteFunctionFrom "agreeToTermsAndConditionsListedInThisContractAndEnterSale" [| ethConn.Account.Address; currentBucket; 1UL; EthAddress.Zero |] debug
-//     let forwardEvent = debug.DecodeForwardedEvents receipt |> Seq.head
-//     forwardEvent |> shouldRevertWithUnknownMessage
+[<Specification("BucketSale", "enter", 2)>]
+[<Fact>]
+let ``B_EN002 - Cannot enter a bucket if payment reverts``() =
+    let zeroValue = BigInteger(0UL)
+    mintFry bucketSale.Address 20000000UL
+    seedWithDAI debug.ContractPlug.Address (BigInteger(10UL))
+    let currentBucket = bucketSale.Query "currentBucket" [||]
+    approveDAIFor zeroValue bucketSale.Address debug
+    // Since we never approve the DAI to be used in the enter by the bucketSale contract, this will fail
+    let receipt = bucketSale.ExecuteFunctionFrom "agreeToTermsAndConditionsListedInThisContractAndEnterSale" [| ethConn.Account.Address; currentBucket; 1UL; EthAddress.Zero |] debug
+    let forwardEvent = debug.DecodeForwardedEvents receipt |> Seq.head
+    forwardEvent |> shouldRevertWithUnknownMessage
 
 
 [<Specification("BucketSale", "enter", 3)>]
