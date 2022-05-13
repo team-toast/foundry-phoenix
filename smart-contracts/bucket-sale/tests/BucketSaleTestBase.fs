@@ -83,6 +83,10 @@ let addFryMinter newMinter =
 
     FRY.Query "isMinter" [| newMinter |] |> should equal true
 
+let mintFry toAddress amount =
+    let mintReceipt = FRY.ExecuteFunction "mint" [| toAddress; amount |]
+    mintReceipt |> shouldSucceed
+
 let renounceFryMinter minter =
     let renounceFryMinterTxReceipt =  FRY.ExecuteFunction "renounceMinter" [| minter |]
     renounceFryMinterTxReceipt |> shouldSucceed
@@ -224,4 +228,4 @@ let exitBucketAndValidateState buyer bucketToExit valueEntered =
     buyerBalanceAfter |> should equal (buyerBalanceBefore + amountToExit)
 
     let totalSupplyAfter = FRY.Query "totalSupply" [||]
-    totalSupplyAfter |> should equal (totalSupplyBefore + amountToExit)
+    totalSupplyAfter |> should equal (totalSupplyBefore)
