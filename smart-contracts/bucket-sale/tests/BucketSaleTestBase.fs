@@ -36,7 +36,7 @@ let referrerReward referrerAddress amount =
         ((amount / BigInteger 1000000000000000000UL) + BigInteger 10000UL)
         
 
-let makeTreasury owner = 
+let makeForwarder owner = 
     let abi = Abi("../../../../build/contracts/Forwarder.json")
     
     let deployTxReceipt =
@@ -46,16 +46,28 @@ let makeTreasury owner =
 
     ContractPlug(ethConn, abi, deployTxReceipt.ContractAddress)
 
+let makeSplitter owner = 
+    let abi = Abi("../../../../build/contracts/DaiSplitter.json")
+    
+    let deployTxReceipt =
+        ethConn.DeployContractAsync abi
+            [||]
+        |> runNow
 
-let treasury = makeTreasury ethConn.Account.Address
+    ContractPlug(ethConn, abi, deployTxReceipt.ContractAddress)
 
 
-let makeBucketSale treasury startOfSale bucketPeriod bucketSupply bucketCount tokenOnSale tokenSoldFor timeTravel =
+let forwarder = makeForwarder ethConn.Account.Address
+
+let splitter = makeSplitter ethConn.Account.Address
+
+
+let makeBucketSale splitter startOfSale bucketPeriod bucketSupply bucketCount tokenOnSale tokenSoldFor timeTravel =
     let abi = Abi("../../../../build/contracts/BucketSale.json")
     
     let deployTxReceipt =
         ethConn.DeployContractAsync abi
-            [| treasury; startOfSale; bucketPeriod; bucketSupply; bucketCount; tokenOnSale; tokenSoldFor |]
+            [| splitter; startOfSale; bucketPeriod; bucketSupply; bucketCount; tokenOnSale; tokenSoldFor |]
         |> runNow
     ethConn.TimeTravel timeTravel
     ContractPlug(ethConn, abi, deployTxReceipt.ContractAddress)
@@ -63,7 +75,7 @@ let makeBucketSale treasury startOfSale bucketPeriod bucketSupply bucketCount to
 
 let bucketSale = 
     makeBucketSale 
-        treasury.Address 
+        splitter.Address 
         startOfSale 
         bucketPeriod 
         bucketSupply 
@@ -112,7 +124,8 @@ let enterBucketAndValidateState sender buyer bucketToEnter valueToEnter referrer
     let calculatedReferrerRewardPercBefore = referrerReward referrer referrerReferredTotalBefore
     referrerRewardPercBefore |> should equal calculatedReferrerRewardPercBefore
     let senderDaiBalanceBefore = DAI.Query "balanceOf" [| debug.ContractPlug.Address |]
-    let treasuryDaiBalanceBefore = DAI.Query "balanceOf" [| treasury.Address |]
+    // let forwarderDaiBalanceBefore = DAI.Query "balanceOf" [| forwarder.Address |]
+    let splitterDaiBalanceBefore = DAI.Query "balanceOf" [| splitter.Address |]
     let buyForBucketBefore = bucketSale.QueryObj<BuysOutputDTO> "buys" [| bucketToEnter; buyer |]
     let buyerRewardBuyBefore = bucketSale.QueryObj<BuysOutputDTO> "buys" [| bucketToEnter + BigInteger.One; buyer |]
     let referrerRewardBuyBefore = bucketSale.QueryObj<BuysOutputDTO> "buys" [| bucketToEnter + BigInteger.One; referrer |]
@@ -156,7 +169,8 @@ let enterBucketAndValidateState sender buyer bucketToEnter valueToEnter referrer
         enteredEvent.ValueEntered |> should equal valueToEnter
 
     // state validation
-    bucketSale.Query "splitter" [||] |> shouldEqualIgnoringCase treasury.Address
+    // bucketSale.Query "forwarder" [||] |> shouldEqualIgnoringCase forwarder.Address
+    bucketSale.Query "splitter" [||] |> shouldEqualIgnoringCase splitter.Address
     bucketSale.Query "startOfSale" [||] |> should equal startOfSale
     bucketSale.Query "bucketPeriod" [||] |> should equal bucketPeriod
     bucketSale.Query "bucketSupply" [||] |> should equal bucketSupply
@@ -166,8 +180,10 @@ let enterBucketAndValidateState sender buyer bucketToEnter valueToEnter referrer
 
     let senderDaiBalanceAfter = DAI.Query "balanceOf" [| debug.ContractPlug.Address |]
     senderDaiBalanceAfter |> should equal (senderDaiBalanceBefore - valueToEnter)
-    let treasuryDaiBalanceAfter = DAI.Query "balanceOf" [| treasury.Address |]
-    treasuryDaiBalanceAfter |> should equal (treasuryDaiBalanceBefore + valueToEnter)
+    // let forwarderDaiBalanceAfter = DAI.Query "balanceOf" [| forwarder.Address |]
+    // forwarderDaiBalanceAfter |> should equal (forwarderDaiBalanceBefore + valueToEnter)
+    let splitterDaiBalanceAfter = DAI.Query "balanceOf" [| splitter.Address |]
+    splitterDaiBalanceAfter |> should equal (splitterDaiBalanceBefore + valueToEnter)
 
     let buyForBucketAfter = bucketSale.QueryObj<BuysOutputDTO> "buys" [| bucketToEnter; buyer |]
     buyForBucketAfter.ValueEntered |> should equal (buyForBucketBefore.ValueEntered + valueToEnter)
