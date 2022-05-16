@@ -3,7 +3,6 @@ pragma solidity ^0.5.17;
 import "../../common.5/openzeppelin/math/Math.sol";
 import "../../common.5/openzeppelin/math/SafeMath.sol";
 import "../../common.5/openzeppelin/token/ERC20/ERC20Mintable.sol";
-import "./DummyDaiSplitter.sol";
 
 contract IDecimals
 {
@@ -11,6 +10,12 @@ contract IDecimals
         public
         view
         returns (uint8);
+}
+
+contract IDaiSplitter 
+{
+    function split()
+        public;
 }
 
 contract BucketSale
@@ -53,7 +58,7 @@ contract BucketSale
     // For each address, this tallies how much tokenSoldFor the address is responsible for referring.
     mapping (address => uint) public referredTotal;
 
-    DaiSplitter public splitter;
+    IDaiSplitter public splitter;
     uint public startOfSale;
     uint public bucketPeriod;
     uint public bucketSupply;
@@ -63,7 +68,7 @@ contract BucketSale
     IERC20 public tokenSoldFor;
 
     constructor (
-            DaiSplitter _splitter,
+            address _splitterAddress,
             uint _startOfSale,
             uint _bucketPeriod,
             uint _bucketSupply,
@@ -72,14 +77,14 @@ contract BucketSale
             IERC20 _tokenSoldFor)     // typically DAI
         public
     {
-        require(address(_splitter) != address(0), "splitter cannot be 0x0");
+        require(_splitterAddress != address(0), "splitter cannot be 0x0");
         require(_bucketPeriod > 0, "bucket period cannot be 0");
         require(_bucketSupply > 0, "bucket supply cannot be 0");
         require(_bucketCount > 0, "bucket count cannot be 0");
         require(address(_tokenOnSale) != address(0), "token on sale cannot be 0x0");
         require(address(_tokenSoldFor) != address(0), "token sold for cannot be 0x0");
 
-        splitter = _splitter;
+        splitter = IDaiSplitter(_splitterAddress);
         startOfSale = _startOfSale;
         bucketPeriod = _bucketPeriod;
         bucketSupply = _bucketSupply;
@@ -116,7 +121,7 @@ contract BucketSale
         bool transferSuccess = tokenSoldFor.transferFrom(msg.sender, address(splitter), _amount);
         require(transferSuccess, "enter transfer failed");
 
-        splitter.Split();
+        splitter.split();
 
         registerEnter(_bucketId, _buyer, _amount);
         referredTotal[_referrer] = referredTotal[_referrer].add(_amount); // referredTotal[0x0] will track buys with no referral

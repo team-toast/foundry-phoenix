@@ -3,6 +3,7 @@ pragma solidity ^0.5.17;
 import "../../fry-token/contracts/FRY.sol";
 import "./BucketSale.sol";
 import "./Forwarder.sol";
+import "./DaiSplitter.sol";
 
 contract Deployer
 {
@@ -34,7 +35,7 @@ contract Deployer
 
         // Create the bucket sale
         BucketSale bucketSale = new BucketSale (
-            splitter,
+            address(splitter),
             _startOfSale,
             _bucketPeriod,
             _bucketSupply,
