@@ -48,7 +48,7 @@ let ``B_C001|B_C002|B_C003|B_C004|B_C005|B_C006- Cannot construct the contract w
     //   @Adam Dossa, please note this and evaluate if this opens any attack vectors. 
     let abi = Abi("../../../../build/contracts/BucketSale.json")
 
-    let faultyTreasury = (EthAddress.Zero, "treasury cannot be 0x0")
+    let faultySplitter = (EthAddress.Zero, "splitter cannot be 0x0")
     let faultyBucketPeriod = (BigInteger.Zero, "bucket period cannot be 0")
     let faultyBucketSupply = (BigInteger.Zero, "bucket supply cannot be 0")
     let faultyBucketCount = (BigInteger.Zero, "bucket count cannot be 0")
@@ -64,7 +64,7 @@ let ``B_C001|B_C002|B_C003|B_C004|B_C005|B_C006- Cannot construct the contract w
         try 
             ethConn.DeployContractAsync abi
                 [| 
-                    pickParam (param = 0) faultyTreasury treasury.Address;  
+                    pickParam (param = 0) faultySplitter splitter.Address;  
                     startOfSale
                     pickParam (param = 2) faultyBucketPeriod bucketPeriod; 
                     pickParam (param = 3) faultyBucketSupply bucketSupply; 
@@ -93,7 +93,7 @@ let ``B_C008 - Can construct the contract``() =
     let deployTxReceipt =
         ethConn.DeployContractAsync abi
             [| 
-                treasury.Address; 
+                splitter.Address; 
                 startOfSale; 
                 bucketPeriod; 
                 bucketSupply; 
@@ -106,7 +106,7 @@ let ``B_C008 - Can construct the contract``() =
 
     let contract = ContractPlug(ethConn, abi, deployTxReceipt.ContractAddress)
 
-    contract.Query "treasury" [||] |> shouldEqualIgnoringCase treasury.Address
+    contract.Query "splitter" [||] |> shouldEqualIgnoringCase splitter.Address
     contract.Query "startOfSale" [||] |> should equal startOfSale
     contract.Query "startOfSale" [||] |> should greaterThan debug.BlockTimestamp 
     contract.Query "bucketPeriod" [||] |> should equal bucketPeriod
@@ -133,10 +133,11 @@ let ``B_EN001 - Cannot enter without providing funds``() =
 [<Specification("BucketSale", "enter", 2)>]
 [<Fact>]
 let ``B_EN002 - Cannot enter a bucket if payment reverts``() =
-    addFryMinter bucketSale.Address
+    let zeroValue = BigInteger(0UL)
+    mintFry bucketSale.Address 1000000UL
     seedWithDAI debug.ContractPlug.Address (BigInteger(10UL))
     let currentBucket = bucketSale.Query "currentBucket" [||]
-
+    approveDAIFor zeroValue bucketSale.Address debug
     // Since we never approve the DAI to be used in the enter by the bucketSale contract, this will fail
     let receipt = bucketSale.ExecuteFunctionFrom "agreeToTermsAndConditionsListedInThisContractAndEnterSale" [| ethConn.Account.Address; currentBucket; 1UL; EthAddress.Zero |] debug
     let forwardEvent = debug.DecodeForwardedEvents receipt |> Seq.head
@@ -160,12 +161,12 @@ let ``B_EN003|B_EN006 - Cannot enter a past bucket``() =
 
 [<Specification("BucketSale", "enter", 4)>]
 [<Fact>]
-let ``B_EN004 - Cannot enter a bucket beyond the designated bucket count (no referrer)``() =
+let ``B_EN002 - Cannot enter a bucket beyond the designated bucket count (no referrer)``() =
     let valueToEnter = rnd.Next(1,100) |> BigInteger
     seedWithDAI debug.ContractPlug.Address valueToEnter
     approveDAIFor valueToEnter bucketSale.Address debug
 
-    addFryMinter bucketSale.Address
+    mintFry bucketSale.Address 1000000UL
     let bucketIdPastSaleEnd = bucketSale.Query "bucketCount" [||] // will be one greater than what can be correctly entered
     let receipt = bucketSale.ExecuteFunctionFrom "agreeToTermsAndConditionsListedInThisContractAndEnterSale" [| ethConn.Account.Address; bucketIdPastSaleEnd; 1UL; EthAddress.Zero |] debug
     let forwardEvent = debug.DecodeForwardedEvents receipt |> Seq.head
@@ -175,7 +176,7 @@ let ``B_EN004 - Cannot enter a bucket beyond the designated bucket count (no ref
 [<Specification("BucketSale", "enter", 5)>]
 [<Fact>]
 let ``B_EN005 - Can enter a bucket with no referrer``() =
-    addFryMinter bucketSale.Address
+    mintFry bucketSale.Address 1000000UL
 
     let currentBucket = bucketSale.Query "currentBucket" [||]
 
@@ -206,7 +207,7 @@ let ``B_EN005 - Can enter a bucket with no referrer``() =
 let ``B_EN007 - Cannot enter a bucket beyond (bucketCount - 1) (because of referrer)``() =
     let valueToEnter = BigInteger(10L)
 
-    addFryMinter bucketSale.Address
+    mintFry bucketSale.Address 1000000UL
     seedWithDAI debug.ContractPlug.Address valueToEnter
 
     let approveDaiReceipt =  DAI.ExecuteFunctionFrom "approve" [| bucketSale.Address; valueToEnter |] debug
@@ -226,7 +227,7 @@ let ``B_EN007 - Cannot enter a bucket beyond (bucketCount - 1) (because of refer
 [<Specification("BucketSale", "enter", 8)>]
 [<Fact>]
 let ``B_EN008 - Can enter a bucket with a referrer``() =
-    addFryMinter bucketSale.Address
+    mintFry bucketSale.Address 1000000UL
 
     let currentBucket = bucketSale.Query "currentBucket" [||]
 
@@ -294,7 +295,7 @@ let ``B_EX002 - Cannot exit a bucket you did not enter``() =
 [<Specification("BucketSale", "exit", 3)>]
 [<Fact>]
 let ``B_EX003 - Cannot exit a buy you have already exited``() =
-    addFryMinter bucketSale.Address
+    mintFry bucketSale.Address 1000000UL
 
     let currentBucket = bucketSale.Query "currentBucket" [||]
     let valueToEnter = BigInteger 10UL
@@ -359,7 +360,7 @@ let ``B_EX004 - Cannot exit a bucket if the token minting fails``() =
 [<Specification("BucketSale", "exit", 5)>]
 [<Fact>]
 let ``B_EX005 - Can exit a valid past bucket that was entered``() =
-    addFryMinter bucketSale.Address
+    mintFry bucketSale.Address 1000000UL
 
     let initialTimeJump = rnd.Next(0, (bucketCount * bucketPeriod / (BigInteger 2)) |> int32) |> uint64
     ethConn.TimeTravel initialTimeJump
@@ -425,14 +426,14 @@ let ``F_C001 - Can construct a forwarder with an owner``() =
 [<Specification("Forwarder", "changeOwner", 1)>]
 [<Fact>]
 let ``F_CO001 - Cannot change the owner if not called by the current owner``() =
-    let testTreasury = makeTreasury ethConn.Account.Address
+    let testForwarder = makeForwarder ethConn.Account.Address
 
     let newOwner = makeAccount()
-    let changeOwnerTx = testTreasury.ExecuteFunctionFrom "changeOwner" [| newOwner.Address |] debug
+    let changeOwnerTx = testForwarder.ExecuteFunctionFrom "changeOwner" [| newOwner.Address |] debug
 
     changeOwnerTx |> shouldSucceed
     let forwardedEvent = changeOwnerTx |> decodeFirstEvent<ForwardedEventDTO> 
-    forwardedEvent.To |> shouldEqualIgnoringCase testTreasury.Address
+    forwardedEvent.To |> shouldEqualIgnoringCase testForwarder.Address
     forwardedEvent.Wei |> should equal BigInteger.Zero
     forwardedEvent |> shouldRevertWithMessage "only owner"
 
@@ -440,28 +441,28 @@ let ``F_CO001 - Cannot change the owner if not called by the current owner``() =
 [<Specification("Forwarder", "changeOwner", 2)>]
 [<Fact>]
 let ``F_CO002 - Should change the owner if called by the current owner``() =
-    let testTreasury = makeTreasury ethConn.Account.Address
+    let testForwarder = makeForwarder ethConn.Account.Address
 
     let newOwner = makeAccount()
-    let changeOwnerTx = testTreasury.ExecuteFunctionFrom "changeOwner" [| newOwner.Address |] ethConn
+    let changeOwnerTx = testForwarder.ExecuteFunctionFrom "changeOwner" [| newOwner.Address |] ethConn
 
     changeOwnerTx |> shouldSucceed
     let ownerChangedEvent = changeOwnerTx |> decodeFirstEvent<Foundry.Contracts.Forwarder.ContractDefinition.OwnerChangedEventDTO> 
     ownerChangedEvent.NewOwner |> shouldEqualIgnoringCase newOwner.Address
 
-    testTreasury.Query "owner" [||] |> shouldEqualIgnoringCase newOwner.Address
+    testForwarder.Query "owner" [||] |> shouldEqualIgnoringCase newOwner.Address
 
 
 [<Specification("Forwarder", "foward", 1)>]
 [<Fact>]
 let ``F_F001 - Cannot be called by a non-owner``() =
-    let forwardTx = treasury.ExecuteFunctionFrom "forward" [| EthAddress.Zero; "".HexToByteArray(); BigInteger 0UL |] debug
+    let forwardTx = forwarder.ExecuteFunctionFrom "forward" [| EthAddress.Zero; "".HexToByteArray(); BigInteger 0UL |] debug
     forwardTx |> shouldSucceed
     forwardTx.Logs.Count |> should equal 1
     let forwardEvent = forwardTx |> decodeFirstEvent<ForwardedEventDTO>
     forwardEvent.MsgSender |> shouldEqualIgnoringCase ethConn.Account.Address
     forwardEvent.Success |> should equal false
-    forwardEvent.To |> shouldEqualIgnoringCase treasury.Address
+    forwardEvent.To |> shouldEqualIgnoringCase forwarder.Address
     forwardEvent.Wei |> should equal BigInteger.Zero
     forwardEvent |> shouldRevertWithMessage "only owner"
 
@@ -469,7 +470,7 @@ let ``F_F001 - Cannot be called by a non-owner``() =
 [<Specification("Forwarder", "foward", 2)>]
 [<Fact>]
 let ``F_F002 - Should succeed when called by a owner and handle a reverting call``() =
-    let forwardTx = treasury.ExecuteFunction "forward" [| bucketSale.Address; "".HexToByteArray(); BigInteger 0UL |]
+    let forwardTx = forwarder.ExecuteFunction "forward" [| bucketSale.Address; "".HexToByteArray(); BigInteger 0UL |]
     
     forwardTx |> shouldSucceed
     forwardTx.Logs.Count |> should equal 1
@@ -482,14 +483,14 @@ let ``F_F002 - Should succeed when called by a owner and handle a reverting call
 [<Specification("Forwarder", "foward", 3)>]
 [<Fact>]
 let ``F_F003A - Should succeed when called by a owner when making a successful call``() =
-    seedWithDAI treasury.Address (BigInteger 100UL)
+    seedWithDAI forwarder.Address (BigInteger 100UL)
     let recipient = makeAccount()
-    let treasuryBalanceBefore = DAI.Query "balanceOf" [| treasury.Address |]
+    let forwarderBalanceBefore = DAI.Query "balanceOf" [| forwarder.Address |]
     let recipientBalanceBefore = DAI.Query "balanceOf" [| recipient.Address |]
     let amount = rnd.Next(0,100) |> BigInteger
     let sendDaiData = DAI.FunctionData "transfer" [| recipient.Address; amount |]
     
-    let forwardTx = treasury.ExecuteFunction "forward" [| DAI.Address; sendDaiData.HexToByteArray(); BigInteger 0UL |]
+    let forwardTx = forwarder.ExecuteFunction "forward" [| DAI.Address; sendDaiData.HexToByteArray(); BigInteger 0UL |]
     
     forwardTx |> shouldSucceed
     forwardTx.Logs.Count |> should greaterThan 1
@@ -498,7 +499,7 @@ let ``F_F003A - Should succeed when called by a owner when making a successful c
     forwardEvent.To |> shouldEqualIgnoringCase DAI.Address
     forwardEvent.Wei |> should equal BigInteger.Zero
 
-    DAI.Query "balanceOf" [| treasury.Address |] |> should equal (treasuryBalanceBefore - amount)
+    DAI.Query "balanceOf" [| forwarder.Address |] |> should equal (forwarderBalanceBefore - amount)
     DAI.Query "balanceOf" [| recipient.Address |] |> should equal (recipientBalanceBefore + amount)
 
 
@@ -507,12 +508,12 @@ let ``F_F003A - Should succeed when called by a owner when making a successful c
 let ``F_F003B - Should succeed when called by a owner and sending eth``() =
     let recipient = makeAccount()
     let amount = rnd.Next(0,100) |> BigInteger
-    let seedEthReciept = ethConn.SendEther treasury.Address amount
+    let seedEthReciept = ethConn.SendEther forwarder.Address amount
     seedEthReciept |> shouldSucceed
-    let treasuryBalanceBefore = ethConn.GetEtherBalance treasury.Address
+    let forwarderBalanceBefore = ethConn.GetEtherBalance forwarder.Address
     let recipientBalanceBefore = ethConn.GetEtherBalance recipient.Address 
     
-    let forwardTx = treasury.ExecuteFunction "forward" [| recipient.Address; "".HexToByteArray(); amount |]
+    let forwardTx = forwarder.ExecuteFunction "forward" [| recipient.Address; "".HexToByteArray(); amount |]
     
     forwardTx |> shouldSucceed
     forwardTx.Logs.Count |> should greaterThan 0
@@ -521,19 +522,19 @@ let ``F_F003B - Should succeed when called by a owner and sending eth``() =
     forwardEvent.To |> shouldEqualIgnoringCase recipient.Address
     forwardEvent.Wei |> should equal amount
 
-    ethConn.GetEtherBalance treasury.Address |> should equal (treasuryBalanceBefore - amount)
+    ethConn.GetEtherBalance forwarder.Address |> should equal (forwarderBalanceBefore - amount)
     ethConn.GetEtherBalance recipient.Address |> should equal (recipientBalanceBefore + amount)
 
 
 [<Specification("Forwarder", "fallback", 1)>]
 [<Fact>]
 let ``F_FB001 - Should be able to receive eth``() =
-    let testTreasury = makeTreasury ethConn.Account.Address
-    let balanceBefore = ethConn.GetEtherBalance testTreasury.Address
+    let testForwarder = makeForwarder ethConn.Account.Address
+    let balanceBefore = ethConn.GetEtherBalance testForwarder.Address
     let amount = rnd.Next(0,100) |> BigInteger
     
-    let sendEtherTx = ethConn.SendEther testTreasury.Address amount
+    let sendEtherTx = ethConn.SendEther testForwarder.Address amount
 
     sendEtherTx |> shouldSucceed 
     sendEtherTx.Logs |> should be Empty
-    ethConn.GetEtherBalance testTreasury.Address |> should equal (balanceBefore + amount)
+    ethConn.GetEtherBalance testForwarder.Address |> should equal (balanceBefore + amount)
