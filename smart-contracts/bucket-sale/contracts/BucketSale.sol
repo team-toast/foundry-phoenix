@@ -12,7 +12,7 @@ contract IDecimals
         returns (uint8);
 }
 
-contract IDaiSplitter 
+contract ISplitter 
 {
     function split()
         public;
@@ -58,7 +58,7 @@ contract BucketSale
     // For each address, this tallies how much tokenSoldFor the address is responsible for referring.
     mapping (address => uint) public referredTotal;
 
-    IDaiSplitter public splitter;
+    ISplitter public splitter;
     uint public startOfSale;
     uint public bucketPeriod;
     uint public bucketSupply;
@@ -84,7 +84,7 @@ contract BucketSale
         require(address(_tokenOnSale) != address(0), "token on sale cannot be 0x0");
         require(address(_tokenSoldFor) != address(0), "token sold for cannot be 0x0");
 
-        splitter = IDaiSplitter(_splitterAddress);
+        splitter = ISplitter(_splitterAddress);
         startOfSale = _startOfSale;
         bucketPeriod = _bucketPeriod;
         bucketSupply = _bucketSupply;

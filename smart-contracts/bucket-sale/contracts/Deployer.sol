@@ -3,7 +3,7 @@ pragma solidity ^0.5.17;
 import "../../fry-token/contracts/FRY.sol";
 import "./BucketSale.sol";
 import "./Forwarder.sol";
-import "./DaiSplitter.sol";
+import "./Splitter.sol";
 
 contract Deployer
 {
@@ -28,7 +28,7 @@ contract Deployer
         // Create the treasury contract, giving initial ownership to the Team Toast multisig
         Forwarder governanceTreasury = new Forwarder(_teamToastMultisig);
         
-        DaiSplitter splitter = new DaiSplitter();
+        Splitter splitter = new Splitter();
 
         // Create the FRY token
         FRY fryToken = new FRY();
