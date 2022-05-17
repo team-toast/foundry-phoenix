@@ -3,7 +3,7 @@ pragma solidity ^0.5.17;
 import "../../fry-token/contracts/FRY.sol";
 import "./BucketSale.sol";
 import "./Forwarder.sol";
-import "./Splitter.sol";
+import "./SplitterDummy.sol";
 
 contract Deployer
 {
