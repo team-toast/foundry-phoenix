@@ -181,7 +181,7 @@ multiBucketBotAddress testMode =
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
 
         TestArbitrum ->
-            Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
+            Eth.Utils.unsafeToAddress "0x12871157a0cDd0c15F5513f0564953636fEFC935"
 
 
 maxMultiBucketRange : Int
