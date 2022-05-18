@@ -60,6 +60,12 @@ contract Splitter
         poolId = _poolId;                       // 0xdeb317ecdac19de9dd342f46d2a6d3a578bed521000100000000000000000082
         bptERC20 = IERC20(_bptAddress);         // ETH/DAI/FRY BPT address: 0xDEB317eCdac19DE9dd342f46D2A6D3a578Bed521
         treasuryAddress = _treasuryAddress;     // Foundry treasury Forwarder - 0xC38f63Aba640F390F1108A81a441F27398867722
+        
+        (IERC20[] memory tokensFromPool, , ) = vault.getPoolTokens(poolId); // WETH: 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1, DAI: 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1, FRY: 0x633A3d2091dc7982597A0f635d23Ba5EB1223f48
+
+        tokensFromPool[0].approve(address(vault), type(uint256).max);
+        tokensFromPool[1].approve(address(vault), type(uint256).max);
+        tokensFromPool[2].approve(address(vault), type(uint256).max);
     }
 
     function split()
@@ -72,10 +78,6 @@ contract Splitter
         maxAmountsIn[0] = tokens[0].balanceOf(address(this));
         maxAmountsIn[1] = tokens[1].balanceOf(address(this));
         maxAmountsIn[2] = tokens[2].balanceOf(address(this));
-
-        tokens[0].approve(address(vault), type(uint256).max);
-        tokens[1].approve(address(vault), type(uint256).max);
-        tokens[2].approve(address(vault), type(uint256).max);
 
         bytes memory userData = hex"0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003";
         userData = bytes.concat(userData, bytes32(maxAmountsIn[0]), bytes32(maxAmountsIn[1]), bytes32(maxAmountsIn[2]));
