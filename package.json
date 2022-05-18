@@ -24,6 +24,7 @@
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "clipboard": "^2.0.6",
+    "deasync": "^0.1.26",
     "elm-ethereum-ports": "^1.0.1",
     "jquery": "^3.5.1",
     "parcel": "^1.12.4",

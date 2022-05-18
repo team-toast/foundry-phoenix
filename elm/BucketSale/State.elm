@@ -121,7 +121,7 @@ verifyWalletCorrectNetwork :
     -> Wallet.State
 verifyWalletCorrectNetwork wallet testMode =
     case ( testMode, Wallet.network wallet ) of
-        ( None, Just Eth.Net.Mainnet ) ->
+        ( None, Just (Eth.Net.Private 42161) ) ->
             wallet
 
         ( TestMainnet, Just Eth.Net.Mainnet ) ->

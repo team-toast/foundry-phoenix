@@ -3686,7 +3686,7 @@ connectToWeb3Button dProfile wallet =
                 (commonTextStyles
                     ++ [ Element.Font.color Theme.softRed ]
                 )
-                (Element.text "Make sure your wallet is set to the Ethereum mainnet.")
+                (Element.text "Make sure your wallet is set to the Arbitrum One.")
 
         Wallet.Active _ ->
             Element.el

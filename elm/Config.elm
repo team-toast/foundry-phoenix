@@ -16,7 +16,8 @@ displayProfileBreakpoint =
 
 mainnetHttpProviderUrl : String
 mainnetHttpProviderUrl =
-    "https://81fa4f6630764ea8aa60f0c535d71325.eth.rpc.rivet.cloud/"
+    "https://arb1.arbitrum.io/rpc"
+    -- "https://81fa4f6630764ea8aa60f0c535d71325.eth.rpc.rivet.cloud/"
 
 
 kovanHttpProviderUrl : String
@@ -53,7 +54,7 @@ enteringTokenAddress : TestMode -> Address
 enteringTokenAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+            Eth.Utils.unsafeToAddress "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
@@ -77,7 +78,7 @@ exitingTokenAddress : TestMode -> Address
 exitingTokenAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0x6c972b70c533E2E045F333Ee28b9fFb8D717bE69"
+            Eth.Utils.unsafeToAddress "0x633A3d2091dc7982597A0f635d23Ba5EB1223f48"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
@@ -96,7 +97,7 @@ bucketSaleAddress : TestMode -> Address
 bucketSaleAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0x30076fF7436aE82207b9c03AbdF7CB056310A95A"
+            Eth.Utils.unsafeToAddress "0x88b81fB43eeEa15F790C41Fe16988C01dd539df3"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
@@ -114,7 +115,7 @@ bucketSaleScriptsAddress : TestMode -> Address
 bucketSaleScriptsAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0xfF0E22aDd363A90bB5cAd3e74A21341C1a9A80AE"
+            Eth.Utils.unsafeToAddress "0x32901CB36289620e4DeB9D551770D5e19b9C7786"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
@@ -169,7 +170,7 @@ multiBucketBotAddress : TestMode -> Address
 multiBucketBotAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0x7d6ea6ae58ddc0c237557035ad873b5a978d108b"
+            Eth.Utils.unsafeToAddress "0xd9D5d334660Fdc351529d91539A3b981f946424f"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"

@@ -115,7 +115,7 @@ wrongWeb3Network =
     { label = "wrongWeb3Network"
     , noticeType = Error
     , mainParagraphs =
-        [ [ Element.text "Make sure your wallet is set to Ethereum mainnet." ]
+        [ [ Element.text "Make sure your wallet is set to Arbitrum One." ]
         ]
     , align = BottomRight
     }
