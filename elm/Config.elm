@@ -97,7 +97,7 @@ bucketSaleAddress : TestMode -> Address
 bucketSaleAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0x88b81fB43eeEa15F790C41Fe16988C01dd539df3"
+            Eth.Utils.unsafeToAddress "0x7A406340dABe0471C36700cE707eB7FA14409164"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
@@ -137,18 +137,18 @@ gasstationApiEndpoint =
 
 bucketSaleBucketInterval : TestMode -> Time.Posix
 bucketSaleBucketInterval testMode =
-    Time.millisToPosix <| 1000 * 604800
+    Time.millisToPosix <| 1000 * 3600
     -- Time.millisToPosix <| 1000 * 7200
 
 
 bucketSaleTokensPerBucket : TestMode -> TokenValue
 bucketSaleTokensPerBucket testMode =
-    TokenValue.fromIntTokenValue 2000000
+    TokenValue.fromIntTokenValue 20
 
 
 bucketSaleNumBuckets : Int
 bucketSaleNumBuckets =
-    50
+    100
 
 
 feedbackEndpointUrl : String
