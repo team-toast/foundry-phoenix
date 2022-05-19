@@ -28,7 +28,7 @@ appHttpProvider testMode =
 networkToHttpProvider : Eth.Net.NetworkId -> Maybe HttpProvider
 networkToHttpProvider networkId =
     case networkId of
-        Eth.Net.Mainnet ->
+        Eth.Net.Private 42161 ->
             Just Config.mainnetHttpProviderUrl
 
         Eth.Net.Kovan ->
