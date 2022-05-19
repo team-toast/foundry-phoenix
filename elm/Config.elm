@@ -98,7 +98,7 @@ bucketSaleAddress testMode =
     case testMode of
         None ->
             Eth.Utils.unsafeToAddress "0x7A406340dABe0471C36700cE707eB7FA14409164"
-
+        
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
 
@@ -170,7 +170,7 @@ multiBucketBotAddress : TestMode -> Address
 multiBucketBotAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0xd9D5d334660Fdc351529d91539A3b981f946424f"
+            Eth.Utils.unsafeToAddress "0xF0f15419Cd7C36b65e72EfFbf709991e5552e62E"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
@@ -187,4 +187,4 @@ multiBucketBotAddress testMode =
 
 maxMultiBucketRange : Int
 maxMultiBucketRange =
-    200
+    50
