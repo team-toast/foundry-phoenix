@@ -30,6 +30,7 @@ import Theme
 import Time
 import TokenValue exposing (TokenValue, toConciseString)
 import Wallet
+
 root :
     DisplayProfile
     -> Model
@@ -2197,175 +2198,164 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                 wallet
 
         Just userInfo ->
-            case jurisdictionCheckStatus of
-                Checked JurisdictionsWeArentIntimidatedIntoExcluding ->
-                    case maybeExtraUserInfo of
-                        Nothing ->
-                            msgInsteadOfButton
-                                dProfile
-                                "Fetching user balance info..."
-                                grayTextColor
+            
+            case maybeExtraUserInfo of
+                Nothing ->
+                    msgInsteadOfButton
+                        dProfile
+                        "Fetching user balance info..."
+                        grayTextColor
 
-                        Just extraUserInfo ->
-                            let
-                                enteringAmount =
-                                    enterUXModel.amountValidated
-                                        |> Maybe.map Result.toMaybe
-                                        |> Maybe.Extra.join
-                                        |> Maybe.withDefault TokenValue.zero
-                            in
-                            if unlockMining then
-                                msgInsteadOfButton
-                                    dProfile
-                                    "Mining token enable..."
-                                    grayTextColor
+                Just extraUserInfo ->
+                    let
+                        enteringAmount =
+                            enterUXModel.amountValidated
+                                |> Maybe.map Result.toMaybe
+                                |> Maybe.Extra.join
+                                |> Maybe.withDefault TokenValue.zero
+                    in
+                    if unlockMining then
+                        msgInsteadOfButton
+                            dProfile
+                            "Mining token enable..."
+                            grayTextColor
 
-                            else if TokenValue.isZero extraUserInfo.ethBalance then
-                                msgInsteadOfButton
-                                    dProfile
-                                    "You have no Ethereum in your wallet..."
-                                    orangeWarningColor
+                    else if TokenValue.isZero extraUserInfo.ethBalance then
+                        msgInsteadOfButton
+                            dProfile
+                            "You have no Ethereum in your wallet..."
+                            orangeWarningColor
 
-                            else if TokenValue.isZero extraUserInfo.enteringTokenAllowance then
-                                enableTokenButton
-                                    dProfile
-                                    saleType
+                    else if TokenValue.isZero extraUserInfo.enteringTokenAllowance then
+                        enableTokenButton
+                            dProfile
+                            saleType
 
-                            else if TokenValue.toFloatWithWarning extraUserInfo.enteringTokenAllowance < TokenValue.toFloatWithWarning enteringAmount then
-                                enableTokenButton
-                                    dProfile
-                                    saleType
+                    else if TokenValue.toFloatWithWarning extraUserInfo.enteringTokenAllowance < TokenValue.toFloatWithWarning enteringAmount then
+                        enableTokenButton
+                            dProfile
+                            saleType
 
-                            else
+                    else
+                        let
+                            trackedEnterTxForBucket =
+                                trackedTxs
+                                    |> List.filter
+                                        (\tx ->
+                                            case tx.action of
+                                                Enter enterInfo ->
+                                                    enterInfo.bucketId
+                                                        == bucketInfo.id
+                                                        && saleType
+                                                        == enterInfo.saleType
+
+                                                _ ->
+                                                    False
+                                        )
+
+                            miningTotalForThisBucket =
+                                trackedEnterTxForBucket
+                                    |> List.filter
+                                        (\tx ->
+                                            case tx.status of
+                                                Signed _ Mining ->
+                                                    True
+
+                                                _ ->
+                                                    False
+                                        )
+                                    |> List.map
+                                        (\tx ->
+                                            case tx.action of
+                                                Enter enterInfo ->
+                                                    enterInfo.amount
+
+                                                _ ->
+                                                    TokenValue.zero
+                                        )
+                                    |> List.foldl TokenValue.add TokenValue.zero
+
+                            lastTransactionsForThisBucketWasSuccessful =
+                                trackedEnterTxForBucket
+                                    |> List.map
+                                        (\tx ->
+                                            case tx.status of
+                                                Signed _ Success ->
+                                                    True
+
+                                                _ ->
+                                                    False
+                                        )
+                                    |> lastElem
+                                    |> Maybe.withDefault False
+
+                            enteredIntoThisBucket =
+                                bucketInfo.bucketData.userBuy
+                                    |> Maybe.map .valueEntered
+                                    |> Maybe.withDefault TokenValue.zero
+
+                            nrBuckets =
+                                enterUXModel.nrBucketsValidated
+                                    |> Maybe.map Result.toMaybe
+                                    |> Maybe.Extra.join
+                                    |> Maybe.withDefault 1
+
+                            enterAmountSection =
+                                case enterUXModel.amountValidated of
+                                    Just (Ok enterAmount) ->
+                                        if TokenValue.compare enterAmount extraUserInfo.enteringTokenAllowance /= GT && TokenValue.compare enterAmount extraUserInfo.enteringTokenBalance /= LT then
+                                            disabledButton
+                                                dProfile
+                                                ("You only have "
+                                                    ++ toConciseString extraUserInfo.enteringTokenBalance
+                                                    ++ " "
+                                                    ++ Config.enteringTokenCurrencyLabel
+                                                    ++ ""
+                                                )
+
+                                        else if TokenValue.compare enterAmount extraUserInfo.enteringTokenBalance /= GT then
+                                            continueButton
+                                                dProfile
+                                                userInfo
+                                                bucketInfo.id
+                                                enterAmount
+                                                maybeReferrer
+                                                enteredIntoThisBucket
+                                                miningTotalForThisBucket
+                                                nrBuckets
+                                                saleType
+
+                                        else
+                                            enableTokenButton
+                                                dProfile
+                                                saleType
+
+                                    _ ->
+                                        if lastTransactionsForThisBucketWasSuccessful then
+                                            successButton
+                                                dProfile
+                                                "Successfully entered!"
+
+                                        else
+                                            disabledButton
+                                                dProfile
+                                                "Enter bid amount to continue"
+                        in
+                        -- Allowance is loaded and nonzero, and we are not mining an Unlock
+                        case saleType of
+                            Standard ->
+                                enterAmountSection
+
+                            Advanced ->
                                 let
-                                    trackedEnterTxForBucket =
-                                        trackedTxs
-                                            |> List.filter
-                                                (\tx ->
-                                                    case tx.action of
-                                                        Enter enterInfo ->
-                                                            enterInfo.bucketId
-                                                                == bucketInfo.id
-                                                                && saleType
-                                                                == enterInfo.saleType
-
-                                                        _ ->
-                                                            False
-                                                )
-
-                                    miningTotalForThisBucket =
-                                        trackedEnterTxForBucket
-                                            |> List.filter
-                                                (\tx ->
-                                                    case tx.status of
-                                                        Signed _ Mining ->
-                                                            True
-
-                                                        _ ->
-                                                            False
-                                                )
-                                            |> List.map
-                                                (\tx ->
-                                                    case tx.action of
-                                                        Enter enterInfo ->
-                                                            enterInfo.amount
-
-                                                        _ ->
-                                                            TokenValue.zero
-                                                )
-                                            |> List.foldl TokenValue.add TokenValue.zero
-
-                                    lastTransactionsForThisBucketWasSuccessful =
-                                        trackedEnterTxForBucket
-                                            |> List.map
-                                                (\tx ->
-                                                    case tx.status of
-                                                        Signed _ Success ->
-                                                            True
-
-                                                        _ ->
-                                                            False
-                                                )
-                                            |> lastElem
-                                            |> Maybe.withDefault False
-
-                                    enteredIntoThisBucket =
-                                        bucketInfo.bucketData.userBuy
-                                            |> Maybe.map .valueEntered
-                                            |> Maybe.withDefault TokenValue.zero
-
-                                    nrBuckets =
-                                        enterUXModel.nrBucketsValidated
-                                            |> Maybe.map Result.toMaybe
-                                            |> Maybe.Extra.join
-                                            |> Maybe.withDefault 1
-
-                                    enterAmountSection =
-                                        case enterUXModel.amountValidated of
-                                            Just (Ok enterAmount) ->
-                                                if TokenValue.compare enterAmount extraUserInfo.enteringTokenAllowance /= GT && TokenValue.compare enterAmount extraUserInfo.enteringTokenBalance /= LT then
-                                                    disabledButton
-                                                        dProfile
-                                                        ("You only have "
-                                                            ++ toConciseString extraUserInfo.enteringTokenBalance
-                                                            ++ " "
-                                                            ++ Config.enteringTokenCurrencyLabel
-                                                            ++ ""
-                                                        )
-
-                                                else if TokenValue.compare enterAmount extraUserInfo.enteringTokenBalance /= GT then
-                                                    continueButton
-                                                        dProfile
-                                                        userInfo
-                                                        bucketInfo.id
-                                                        enterAmount
-                                                        maybeReferrer
-                                                        enteredIntoThisBucket
-                                                        miningTotalForThisBucket
-                                                        nrBuckets
-                                                        saleType
-
-                                                else
-                                                    enableTokenButton
-                                                        dProfile
-                                                        saleType
-
-                                            _ ->
-                                                if lastTransactionsForThisBucketWasSuccessful then
-                                                    successButton
-                                                        dProfile
-                                                        "Successfully entered!"
-
-                                                else
-                                                    disabledButton
-                                                        dProfile
-                                                        "Enter bid amount to continue"
+                                    infoText =
+                                        "Enter values above to continue."
                                 in
-                                -- Allowance is loaded and nonzero, and we are not mining an Unlock
-                                case saleType of
-                                    Standard ->
-                                        enterAmountSection
-
-                                    Advanced ->
-                                        let
-                                            infoText =
-                                                "Enter values above to continue."
-                                        in
-                                        case enterUXModel.fromBucketValidated of
-                                            Just (Ok startBucketId) ->
-                                                case enterUXModel.nrBucketsValidated of
-                                                    Just (Ok numberOfBuckets) ->
-                                                        enterAmountSection
-
-                                                    Just (Err error) ->
-                                                        disabledButton
-                                                            dProfile
-                                                            error
-
-                                                    Nothing ->
-                                                        disabledButton
-                                                            dProfile
-                                                            infoText
+                                case enterUXModel.fromBucketValidated of
+                                    Just (Ok startBucketId) ->
+                                        case enterUXModel.nrBucketsValidated of
+                                            Just (Ok numberOfBuckets) ->
+                                                enterAmountSection
 
                                             Just (Err error) ->
                                                 disabledButton
@@ -2377,10 +2367,17 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                                                     dProfile
                                                     infoText
 
-                _ ->
-                    verifyJurisdictionButtonOrResult
-                        dProfile
-                        jurisdictionCheckStatus
+                                    Just (Err error) ->
+                                        disabledButton
+                                            dProfile
+                                            error
+
+                                    Nothing ->
+                                        disabledButton
+                                            dProfile
+                                            infoText
+
+                
 
 
 lastElem :
