@@ -38,6 +38,7 @@ import Time
 import TokenValue exposing (TokenValue)
 import Utils
 import Wallet
+import String exposing (toInt)
 
 
 init :
@@ -1182,6 +1183,7 @@ update msg prevModel =
                 []
 
         MultiBucketFromBucketChanged value ->
+            Debug.log("Hello 1: " ++ value)
             UpdateResult
                 { prevModel
                     | enterUXModel =
@@ -1203,15 +1205,18 @@ update msg prevModel =
                                                 prevModel.testMode
                                             )
                         in
-                        { oldEnterUXModel
+                        Debug.log("Hello 2: " ++ value)
+                        {     
+                        oldEnterUXModel
                             | fromBucketInput = value
                             , fromBucketValidated =
                                 newFromBucketId
                             , nrBucketsValidated =
                                 if value == "" then
                                     Nothing
-
+                                    
                                 else
+                                    Debug.log("Hello 3: ")
                                     Just <|
                                         validateMultiBucketNrOfBuckets
                                             oldEnterUXModel.nrBucketsInput
