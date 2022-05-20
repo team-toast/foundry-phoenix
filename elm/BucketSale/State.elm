@@ -1183,7 +1183,7 @@ update msg prevModel =
                 []
 
         MultiBucketFromBucketChanged value ->
-            Debug.log("Hello 1: " ++ value)
+            -- Debug.log("Hello 1: " ++ value)
             UpdateResult
                 { prevModel
                     | enterUXModel =
@@ -1205,7 +1205,7 @@ update msg prevModel =
                                                 prevModel.testMode
                                             )
                         in
-                        Debug.log("Hello 2: " ++ value)
+                        -- Debug.log("Hello 2: " ++ value)
                         {     
                         oldEnterUXModel
                             | fromBucketInput = value
@@ -1216,7 +1216,7 @@ update msg prevModel =
                                     Nothing
                                     
                                 else
-                                    Debug.log("Hello 3: ")
+                                    -- Debug.log("Hello 3: ")
                                     Just <|
                                         validateMultiBucketNrOfBuckets
                                             oldEnterUXModel.nrBucketsInput
