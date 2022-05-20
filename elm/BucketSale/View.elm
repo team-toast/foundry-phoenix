@@ -1253,7 +1253,6 @@ bucketUX dProfile wallet maybeReferrer maybeExtraUserInfo enterUXModel bucketInf
                             saleType
                             currentBucketId
                             testMode
-                        , gasWarning
                         , actionButton
                             dProfile
                             jurisdictionCheckStatus
@@ -1298,7 +1297,6 @@ bucketUX dProfile wallet maybeReferrer maybeExtraUserInfo enterUXModel bucketInf
                                     saleType
                                     currentBucketId
                                     testMode
-                            , gasWarning
                             , actionButton
                                 dProfile
                                 jurisdictionCheckStatus
