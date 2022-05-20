@@ -30,8 +30,6 @@ import Theme
 import Time
 import TokenValue exposing (TokenValue, toConciseString)
 import Wallet
-
-
 root :
     DisplayProfile
     -> Model
