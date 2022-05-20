@@ -8,7 +8,7 @@ var commonModule = (function () {
     const tokenAddress = "0x633A3d2091dc7982597A0f635d23Ba5EB1223f48";
     const tokenSymbol = "FRY";
     const tokenDecimals = 18;
-    const tokenImage = "https://foundrydao.com/common-assets/img/fry-icon.png";
+    const tokenImage = "https://sale.foundrydao.com/img/fry-icon.svg";
 
     pub.addFryToMetaMask = () => {
         ethereum.sendAsync(
