@@ -97,7 +97,7 @@ bucketSaleAddress : TestMode -> Address
 bucketSaleAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0xa036b8DD6655392fdf61057ec55881045FfB8d95"
+            Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
         
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
