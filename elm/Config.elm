@@ -97,7 +97,7 @@ bucketSaleAddress : TestMode -> Address
 bucketSaleAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
+            Eth.Utils.unsafeToAddress "0xB41D22Ca60177dA8a593673C52F9f030dEF1B336"
         
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
@@ -170,7 +170,7 @@ multiBucketBotAddress : TestMode -> Address
 multiBucketBotAddress testMode =
     case testMode of
         None ->
-            Eth.Utils.unsafeToAddress "0xA65424Bf9E63b1049380019F4C98dbe4Faa58d1F"
+            Eth.Utils.unsafeToAddress "0xF3b38497D709648d7f3550CF9B33Be4a5340b81c"
 
         TestKovan ->
             Eth.Utils.unsafeToAddress "0x0000000000000000000000000000000000000000"
