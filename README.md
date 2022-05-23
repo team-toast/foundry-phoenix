@@ -19,16 +19,16 @@ Scripts: 0x32901CB36289620e4DeB9D551770D5e19b9C7786 <br />
 multiBucketExit: 0xd9D5d334660Fdc351529d91539A3b981f946424f (Not used)<br />
 MultiEntryBot: 0xF3b38497D709648d7f3550CF9B33Be4a5340b81c <br />
 
-Testing <br />
-BucketContract: 0x7A406340dABe0471C36700cE707eB7FA14409164 <br />
-MultiEntryBot: 0xF0f15419Cd7C36b65e72EfFbf709991e5552e62E
+Bucket sale launch parameters: <br />
 
-Bucket sale launch parameters:
+-   Splitter: 0x0c8beA1b9b296a8f9ea86bF98060bd17AeC3140c <br />
+-   StartOfSale: 1653307199 <br />
+-   BucketPeriod: 604800 <br />
+-   BucketSupply: 2000000000000000000000000 <br />
+-   BucketCount: 50 <br />
+-   TokenOnSale: 0x633A3d2091dc7982597A0f635d23Ba5EB1223f48 <br />
+-   TokenSoldFor: 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1 <br />
 
--   0x0c8beA1b9b296a8f9ea86bF98060bd17AeC3140c
--   1653220800
--   604800
--   2000000000000000000000000
--   50
--   0x633A3d2091dc7982597A0f635d23Ba5EB1223f48
--   0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1
+Testing Contracts<br />
+BucketContract: 0x348CAcf563284957B036Ff993458fD01684C7774 <br />
+MultiEntryBot: 0x24C975E21F61BCC0fd752f326089DCAC65737b2C
