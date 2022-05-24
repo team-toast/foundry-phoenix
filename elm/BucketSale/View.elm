@@ -31,6 +31,7 @@ import Time
 import TokenValue exposing (TokenValue, toConciseString)
 import Wallet
 
+
 root :
     DisplayProfile
     -> Model
@@ -225,8 +226,8 @@ saleTypeBlock dProfile newSaleType =
         [ Element.alignRight
         , Element.spacing 2
         ]
-        [ saleTypeToggleButton dProfile newSaleType Standard
-        , saleTypeToggleButton dProfile newSaleType Advanced
+        [-- saleTypeToggleButton dProfile newSaleType Standard
+         --, saleTypeToggleButton dProfile newSaleType Advanced
         ]
 
 
@@ -2198,7 +2199,6 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                 wallet
 
         Just userInfo ->
-            
             case maybeExtraUserInfo of
                 Nothing ->
                     msgInsteadOfButton
@@ -2376,8 +2376,6 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                                         disabledButton
                                             dProfile
                                             infoText
-
-                
 
 
 lastElem :
