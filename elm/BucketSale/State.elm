@@ -32,13 +32,13 @@ import Maybe.Extra
 import Result.Extra
 import SelectHttpProvider exposing (..)
 import Set
+import String exposing (toInt)
 import Task
 import Theme
 import Time
 import TokenValue exposing (TokenValue)
 import Utils
 import Wallet
-import String exposing (toInt)
 
 
 init :
@@ -578,7 +578,7 @@ update msg prevModel =
             case fetchResult of
                 Err httpErr ->
                     justModelUpdate prevModel
-                        (log ("http error when fetching stateUpdateInfo "))
+                        (log "http error when fetching stateUpdateInfo ")
 
                 Ok Nothing ->
                     justModelUpdate prevModel
@@ -853,7 +853,7 @@ update msg prevModel =
                 [ CmdUp.gTag
                     "6 - enter clicked"
                     "funnel"
-                    (TokenValue.toFloatString Nothing enterInfo.amount)
+                    (TokenValue.toFloatString Nothing (enterInfoAmount enterInfo))
                     0
                 ]
 
@@ -893,25 +893,24 @@ update msg prevModel =
                             }
 
                         txParams =
-                            case enterInfo.saleType of
-                                Standard ->
+                            case enterInfo of
+                                SingleBucket info ->
                                     BucketSaleWrappers.enter
-                                        enterInfo.userInfo.address
-                                        enterInfo.bucketId
-                                        enterInfo.amount
-                                        enterInfo.maybeReferrer
+                                        info.userInfo.address
+                                        info.bucketId
+                                        info.amount
+                                        info.maybeReferrer
                                         prevModel.fastGasPrice
                                         prevModel.testMode
                                         |> Eth.toSend
 
-                                Advanced ->
-                                    -- userAddress bucketId amount numberOfBuckets maybeReferrer maybeGasPrice testMode
+                                MultiBucket info ->
                                     MultiBucketWrappers.enter
-                                        enterInfo.userInfo.address
-                                        enterInfo.bucketId
-                                        enterInfo.amount
-                                        enterInfo.nrBuckets
-                                        enterInfo.maybeReferrer
+                                        info.userInfo.address
+                                        info.bucketId
+                                        info.amount
+                                        info.bucketCount
+                                        info.maybeReferrer
                                         prevModel.fastGasPrice
                                         prevModel.testMode
                                         |> Eth.toSend
@@ -928,7 +927,7 @@ update msg prevModel =
                 [ CmdUp.gTag
                     "8a - confirm clicked"
                     "funnel"
-                    (TokenValue.toFloatString Nothing enterInfo.amount)
+                    (TokenValue.toFloatString Nothing (enterInfoAmount enterInfo))
                     0
                 ]
 
@@ -1029,7 +1028,7 @@ update msg prevModel =
                                 Enter enterInfo ->
                                     ( "8b - "
                                     , Just
-                                        (enterInfo.amount
+                                        (enterInfoAmount enterInfo
                                             |> TokenValue.toFloatWithWarning
                                         )
                                     )
@@ -1104,7 +1103,7 @@ update msg prevModel =
                                                 Enter enterInfo ->
                                                     ( "8c - "
                                                     , Just
-                                                        (enterInfo.amount
+                                                        (enterInfoAmount enterInfo
                                                             |> TokenValue.toFloatWithWarning
                                                             |> floor
                                                         )
@@ -1183,8 +1182,8 @@ update msg prevModel =
                 []
 
         MultiBucketFromBucketChanged value ->
-            -- Debug.log("Hello 1: " ++ value)
-            UpdateResult
+            Debug.log ("Hello 1: " ++ value)
+                UpdateResult
                 { prevModel
                     | enterUXModel =
                         let
@@ -1204,17 +1203,11 @@ update msg prevModel =
                                                 prevModel.now
                                                 prevModel.testMode
                                             )
-                        in
-                        -- Debug.log("Hello 2: " ++ value)
-                        {     
-                        oldEnterUXModel
-                            | fromBucketInput = value
-                            , fromBucketValidated =
-                                newFromBucketId
-                            , nrBucketsValidated =
+
+                            newNumberOfBuckets =
                                 if value == "" then
                                     Nothing
-                                    
+
                                 else
                                     -- Debug.log("Hello 3: ")
                                     Just <|
@@ -1226,7 +1219,13 @@ update msg prevModel =
                                                 prevModel.now
                                                 prevModel.testMode
                                             )
-                        }
+                        in
+                        Debug.log ("Hello 2: " ++ Debug.toString newFromBucketId)
+                            { oldEnterUXModel
+                                | fromBucketInput = value
+                                , fromBucketValidated = newFromBucketId
+                                , nrBucketsValidated = newNumberOfBuckets
+                            }
                 }
                 Cmd.none
                 ChainCmd.none
@@ -1530,6 +1529,10 @@ validateTokenInput input =
             Err "Can't interpret that number"
 
 
+
+-- Ag nee sies man h
+
+
 validateMultiBucketStartBucket :
     String
     -> Int
@@ -1537,11 +1540,11 @@ validateMultiBucketStartBucket :
 validateMultiBucketStartBucket fromBucket currentBucket =
     let
         rangeError =
-            "Valid buckets are numbered 0 to 1999"
+            "Valid buckets are numbered 0 to 49"
     in
     case String.toInt fromBucket of
         Just intVal ->
-            if intVal < 0 || intVal > 1999 then
+            if intVal < 0 || intVal > 49 then
                 Err rangeError
 
             else if intVal < currentBucket then

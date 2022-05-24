@@ -44,7 +44,6 @@ type alias Model =
     , showFeedbackUXModel : Bool
     , feedbackUXModel : FeedbackUXModel
     , showYoutubeBlock : Bool
-    , saleType : SaleType
     }
 
 
@@ -145,14 +144,40 @@ type alias TosCheckbox =
     }
 
 
-type alias EnterInfo =
+type alias SingleBucketEnterInfo =
     { userInfo : UserInfo
     , bucketId : Int
     , amount : TokenValue
     , maybeReferrer : Maybe Address
-    , nrBuckets : Int
-    , saleType : SaleType
     }
+
+
+type alias MultiBucketEnterInfo =
+    { userInfo : UserInfo
+    , bucketId : Int
+    , bucketCount : Int
+    , amount : TokenValue
+    , maybeReferrer : Maybe Address
+    }
+
+
+type EnterInfo
+    = SingleBucket SingleBucketEnterInfo
+    | MultiBucket MultiBucketEnterInfo
+
+
+
+-- ToDo Move to the right place
+
+
+enterInfoAmount : EnterInfo -> TokenValue
+enterInfoAmount enterInfo =
+    case enterInfo of
+        SingleBucket info ->
+            info.amount
+
+        MultiBucket info ->
+            info.amount
 
 
 type alias TrackedTx =

@@ -31,6 +31,7 @@ import Time
 import TokenValue exposing (TokenValue, toConciseString)
 import Wallet
 
+
 root :
     DisplayProfile
     -> Model
@@ -2198,7 +2199,6 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                 wallet
 
         Just userInfo ->
-            
             case maybeExtraUserInfo of
                 Nothing ->
                     msgInsteadOfButton
@@ -2300,6 +2300,12 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                                     |> Maybe.Extra.join
                                     |> Maybe.withDefault 1
 
+                            fromBucketId =
+                                enterUXModel.fromBucketValidated
+                                    |> Maybe.map Result.toMaybe
+                                    |> Maybe.Extra.join
+                                    |> Maybe.withDefault 1
+
                             enterAmountSection =
                                 case enterUXModel.amountValidated of
                                     Just (Ok enterAmount) ->
@@ -2317,7 +2323,7 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                                             continueButton
                                                 dProfile
                                                 userInfo
-                                                bucketInfo.id
+                                                fromBucketId
                                                 enterAmount
                                                 maybeReferrer
                                                 enteredIntoThisBucket
@@ -2376,8 +2382,6 @@ actionButton dProfile jurisdictionCheckStatus maybeReferrer wallet maybeExtraUse
                                         disabledButton
                                             dProfile
                                             infoText
-
-                
 
 
 lastElem :
