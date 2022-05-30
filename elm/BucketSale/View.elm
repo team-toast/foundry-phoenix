@@ -3224,7 +3224,7 @@ referralModal dProfile userInfo maybeReferrer testMode =
                                     responsiveVal
                                         dProfile
                                         24
-                                        14
+                                        24
                                 , Element.Font.bold
                                 , Element.Font.color green
                                 ]
@@ -3319,12 +3319,12 @@ referralLinkElement dProfile referrerAddress testMode =
     Element.el
         [ Element.width Element.fill
         , Element.Background.color <| deepBlueWithAlpha 0.05
-        , Element.paddingXY 5 15
+        , Element.paddingXY 50 30
         , Element.Font.color deepBlue
         , Element.Font.size <|
             responsiveVal
                 dProfile
-                12
+                14
                 10
         , Element.clipX
         , Element.scrollbarX
